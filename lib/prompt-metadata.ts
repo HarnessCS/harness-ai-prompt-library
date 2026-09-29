@@ -518,6 +518,122 @@ export const PROMPT_METADATA: Record<string, PromptMetadata> = {
     complexity: 'intermediate', sdlcStage: 'build', personas: ['devops-engineer', 'developer'],
     situations: ['optimize'],
   },
+
+  // ── Knowledge Graph ────────────────────────────────────────────────────────────
+  'kg-001': {
+    description: 'Ranks pipelines by failure rate and drills into the stages and steps where failures concentrate, using the Knowledge Graph across pipeline, stage, and step executions.',
+    agentType: 'devops', mode: 'standard', availability: 'ga',
+    complexity: 'beginner', sdlcStage: 'build', personas: ['devops-engineer', 'team-lead'],
+    situations: ['build-failed'],
+  },
+  'kg-002': {
+    description: 'Ranks pipelines by total failure count over the last 30 days to prioritize remediation work.',
+    agentType: 'devops', mode: 'standard', availability: 'ga',
+    complexity: 'beginner', sdlcStage: 'build', personas: ['devops-engineer', 'team-lead'],
+    situations: ['build-failed'],
+  },
+  'kg-003': {
+    description: 'Surfaces the stages that fail most often across all pipelines for cross-pipeline, stage-level reliability insights.',
+    agentType: 'devops', mode: 'standard', availability: 'ga',
+    complexity: 'intermediate', sdlcStage: 'build', personas: ['devops-engineer', 'platform-engineer'],
+    situations: ['build-failed'],
+  },
+  'kg-004': {
+    description: 'Surfaces the five most common error messages across failed pipeline executions to expose systemic issues.',
+    agentType: 'devops', mode: 'standard', availability: 'ga',
+    complexity: 'beginner', sdlcStage: 'build', personas: ['devops-engineer', 'developer'],
+    situations: ['build-failed'],
+  },
+  'kg-005': {
+    description: 'Finds your most-failing pipeline, clusters its failures by error code, and recommends targeted fixes ordered by impact.',
+    agentType: 'devops', mode: 'standard', availability: 'ga',
+    complexity: 'intermediate', sdlcStage: 'build', personas: ['devops-engineer', 'developer'],
+    situations: ['build-failed'],
+  },
+  'kg-006': {
+    description: 'Identifies the slowest pipelines and surfaces the stage and step bottlenecks driving their duration, with optimization recommendations.',
+    agentType: 'devops', mode: 'standard', availability: 'ga',
+    complexity: 'beginner', sdlcStage: 'build', personas: ['devops-engineer', 'developer'],
+    situations: ['optimize'],
+  },
+  'kg-007': {
+    description: 'Ranks successful builds over the last 30 days by duration to prioritize build optimization.',
+    agentType: 'devops', mode: 'standard', availability: 'ga',
+    complexity: 'beginner', sdlcStage: 'build', personas: ['devops-engineer', 'developer'],
+    situations: ['optimize'],
+  },
+  'kg-008': {
+    description: 'Breaks down a specific pipeline by stage duration to identify the bottleneck stage for targeted optimization.',
+    agentType: 'devops', mode: 'standard', availability: 'ga',
+    complexity: 'beginner', sdlcStage: 'build', personas: ['devops-engineer', 'developer'],
+    situations: ['optimize'],
+  },
+  'kg-009': {
+    description: 'Compares week-over-week build times to find which stages and steps regressed and the most likely root cause.',
+    agentType: 'devops', mode: 'standard', availability: 'ga',
+    complexity: 'intermediate', sdlcStage: 'build', personas: ['devops-engineer', 'developer'],
+    situations: ['optimize'],
+  },
+  'kg-010': {
+    description: 'Identifies the slowest test suites across CI pipelines and recommends how to split, parallelize, or skip them.',
+    agentType: 'qa', mode: 'standard', availability: 'ga',
+    complexity: 'intermediate', sdlcStage: 'test', personas: ['developer', 'devops-engineer'],
+    situations: ['optimize'],
+  },
+  'kg-011': {
+    description: 'Finds pipelines without caching or with poor cache hit rates to prioritize caching improvements.',
+    agentType: 'devops', mode: 'standard', availability: 'ga',
+    complexity: 'beginner', sdlcStage: 'build', personas: ['devops-engineer'],
+    situations: ['optimize'],
+  },
+  'kg-012': {
+    description: 'Analyzes execution patterns across caching, approvals, and failures to produce ranked pipeline productivity recommendations.',
+    agentType: 'devops', mode: 'standard', availability: 'ga',
+    complexity: 'intermediate', sdlcStage: 'plan', personas: ['team-lead', 'platform-engineer', 'devops-engineer'],
+    situations: ['optimize'],
+  },
+  'kg-013': {
+    description: 'Quantifies build minutes and cost wasted on missing or disabled caching, by pipeline.',
+    agentType: 'devops', mode: 'standard', availability: 'ga',
+    complexity: 'intermediate', sdlcStage: 'cost', personas: ['devops-engineer', 'platform-engineer'],
+    situations: ['optimize'],
+  },
+  'kg-014': {
+    description: 'Finds CI cost-saving opportunities, such as waste, retries, and oversized runners, that do not slow builds down.',
+    agentType: 'devops', mode: 'standard', availability: 'ga',
+    complexity: 'intermediate', sdlcStage: 'cost', personas: ['platform-engineer', 'team-lead', 'finops-analyst'],
+    situations: ['optimize'],
+  },
+  'kg-015': {
+    description: 'Identifies intermittently failing tests in CI pipelines and calculates what their retries cost in build minutes.',
+    agentType: 'qa', mode: 'standard', availability: 'ga',
+    complexity: 'beginner', sdlcStage: 'test', personas: ['developer', 'devops-engineer'],
+    situations: ['build-failed'],
+  },
+  'kg-016': {
+    description: 'Finds tests with inconsistent pass/fail patterns across pipeline executions.',
+    agentType: 'qa', mode: 'standard', availability: 'ga',
+    complexity: 'beginner', sdlcStage: 'test', personas: ['developer', 'devops-engineer'],
+    situations: ['build-failed'],
+  },
+  'kg-017': {
+    description: 'Calculates weekly build minutes wasted on retries across all pipelines, broken down by pipeline and test.',
+    agentType: 'qa', mode: 'standard', availability: 'ga',
+    complexity: 'beginner', sdlcStage: 'test', personas: ['team-lead', 'devops-engineer'],
+    situations: ['build-failed'],
+  },
+  'kg-018': {
+    description: 'Tracks flaky test trends over time to surface tests whose reliability is degrading.',
+    agentType: 'qa', mode: 'standard', availability: 'ga',
+    complexity: 'intermediate', sdlcStage: 'test', personas: ['developer', 'team-lead'],
+    situations: ['build-failed'],
+  },
+  'kg-019': {
+    description: 'Analyzes flaky integration tests to classify root causes such as timing, resource contention, and test isolation, with fixes.',
+    agentType: 'qa', mode: 'standard', availability: 'ga',
+    complexity: 'advanced', sdlcStage: 'test', personas: ['developer', 'devops-engineer'],
+    situations: ['build-failed'],
+  },
 }
 
 export const DEFAULT_METADATA: PromptMetadata = {

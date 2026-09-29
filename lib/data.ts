@@ -520,6 +520,52 @@ export const MODULES: Module[] = [
       },
     ],
   },
+  {
+    id: 'kg',
+    name: 'Knowledge Graph',
+    shortName: 'Knowledge Graph',
+    description: 'Ask natural language questions about your software delivery workflows, connected across pipelines, services, environments, and infrastructure.',
+    color: '#0891B2',
+    icon: 'Network',
+    useCases: [
+      {
+        id: 'kg-failures',
+        title: 'Pipeline Failure Analysis',
+        description: 'Find the pipelines, stages, and errors behind failed executions',
+        moduleId: 'kg',
+        subUseCases: [
+          { id: 'kg-failure-analysis', title: 'Pipeline Failure Analysis', useCaseId: 'kg-failures' },
+        ],
+      },
+      {
+        id: 'kg-build-time',
+        title: 'Build Time Analysis',
+        description: 'Find slow builds, bottleneck stages, and build-time regressions',
+        moduleId: 'kg',
+        subUseCases: [
+          { id: 'kg-build-duration', title: 'Build Duration & Bottlenecks', useCaseId: 'kg-build-time' },
+        ],
+      },
+      {
+        id: 'kg-productivity',
+        title: 'Pipeline Productivity',
+        description: 'Ranked recommendations to cut wasted compute time and CI cost',
+        moduleId: 'kg',
+        subUseCases: [
+          { id: 'kg-productivity-recs', title: 'Productivity & Cost Recommendations', useCaseId: 'kg-productivity' },
+        ],
+      },
+      {
+        id: 'kg-flaky',
+        title: 'Flaky Test Identification',
+        description: 'Detect intermittent tests and quantify what retries cost',
+        moduleId: 'kg',
+        subUseCases: [
+          { id: 'kg-flaky-tests', title: 'Flaky Test Detection', useCaseId: 'kg-flaky' },
+        ],
+      },
+    ],
+  },
 ]
 
 export const SAMPLE_PROMPTS: RawPrompt[] = [
@@ -4304,6 +4350,526 @@ Please:
     copyCount: 0,
     createdAt: '2026-03-01T10:00:00Z',
     updatedAt: '2026-03-01T10:00:00Z',
+  },
+  // ── Knowledge Graph ────────────────────────────────────────────────────────────
+  {
+    id: 'kg-001',
+    title: 'Which pipelines have the highest failure rate',
+    content: `Which pipelines have the highest failure rate?
+
+**Project:** {{project_name}}
+
+Use the Harness Knowledge Graph to answer this from pipeline, stage, and step execution data:
+1. Rank pipelines by failure rate (failed executions / total executions), not raw count
+2. For the top pipelines, drill into the stages and steps where failures concentrate
+3. Call out any failure point shared across multiple pipelines
+
+Return a table with columns: Pipeline, Executions, Failures, Failure Rate, Most Common Failing Stage/Step.`,
+    variables: [
+      { id: 'v1', name: 'project_name', label: 'Project', placeholder: 'e.g., payments (or "all projects")', type: 'text' },
+    ],
+    tags: ['knowledge-graph', 'pipeline-failures', 'failure-rate', 'ci', 'cd'],
+    subUseCaseId: 'kg-failure-analysis',
+    subUseCaseTitle: 'Pipeline Failure Analysis',
+    useCaseId: 'kg-failures',
+    useCaseTitle: 'Pipeline Failure Analysis',
+    moduleId: 'kg',
+    moduleTitle: 'Knowledge Graph',
+    moduleColor: '#0891B2',
+    copyCount: 0,
+    createdAt: '2026-09-29T10:00:00Z',
+    updatedAt: '2026-09-29T10:00:00Z',
+  },
+  {
+    id: 'kg-002',
+    title: 'Which pipelines failed the most in the last 30 days',
+    content: `Which pipelines failed the most in the last 30 days?
+
+**Project:** {{project_name}}
+
+Use the Harness Knowledge Graph to answer this from pipeline, stage, and step execution data:
+1. Rank pipelines by total failure count over the last 30 days
+2. Show whether each pipeline's failures are trending up or down across the window
+
+Return a ranked list with Pipeline, Failure Count, Last Failure, and Trend so I can prioritize remediation.`,
+    variables: [
+      { id: 'v1', name: 'project_name', label: 'Project', placeholder: 'e.g., payments (or "all projects")', type: 'text' },
+    ],
+    tags: ['knowledge-graph', 'pipeline-failures', '30-days', 'prioritization'],
+    subUseCaseId: 'kg-failure-analysis',
+    subUseCaseTitle: 'Pipeline Failure Analysis',
+    useCaseId: 'kg-failures',
+    useCaseTitle: 'Pipeline Failure Analysis',
+    moduleId: 'kg',
+    moduleTitle: 'Knowledge Graph',
+    moduleColor: '#0891B2',
+    copyCount: 0,
+    createdAt: '2026-09-29T10:00:00Z',
+    updatedAt: '2026-09-29T10:00:00Z',
+  },
+  {
+    id: 'kg-003',
+    title: 'What stages fail most often across all my pipelines',
+    content: `What stages fail most often across all my pipelines?
+
+**Project:** {{project_name}}
+
+Use the Harness Knowledge Graph to answer this from pipeline, stage, and step execution data:
+1. Aggregate stage executions across every pipeline and rank stages by failure count and failure rate
+2. Group similar stages (e.g., all "Build" or "Deploy" stages) to surface cross-pipeline patterns
+
+Return the top stages with Stage Name, Stage Type, Pipelines Affected, Failures, and Failure Rate.`,
+    variables: [
+      { id: 'v1', name: 'project_name', label: 'Project', placeholder: 'e.g., payments (or "all projects")', type: 'text' },
+    ],
+    tags: ['knowledge-graph', 'stage-failures', 'cross-pipeline', 'reliability'],
+    subUseCaseId: 'kg-failure-analysis',
+    subUseCaseTitle: 'Pipeline Failure Analysis',
+    useCaseId: 'kg-failures',
+    useCaseTitle: 'Pipeline Failure Analysis',
+    moduleId: 'kg',
+    moduleTitle: 'Knowledge Graph',
+    moduleColor: '#0891B2',
+    copyCount: 0,
+    createdAt: '2026-09-29T10:00:00Z',
+    updatedAt: '2026-09-29T10:00:00Z',
+  },
+  {
+    id: 'kg-004',
+    title: 'Show me the top 5 error messages from failed pipelines',
+    content: `Show me the top 5 error messages from failed pipelines
+
+**Project:** {{project_name}}
+
+Use the Harness Knowledge Graph to answer this from pipeline, stage, and step execution data:
+1. Group failed executions by error message and failure code
+2. For each error, list the pipelines and stages where it appears
+
+Return the top 5 errors with Error Message, Occurrences, Pipelines Affected, and First/Last Seen, and flag any that look systemic.`,
+    variables: [
+      { id: 'v1', name: 'project_name', label: 'Project', placeholder: 'e.g., payments (or "all projects")', type: 'text' },
+    ],
+    tags: ['knowledge-graph', 'error-messages', 'pipeline-failures', 'systemic-issues'],
+    subUseCaseId: 'kg-failure-analysis',
+    subUseCaseTitle: 'Pipeline Failure Analysis',
+    useCaseId: 'kg-failures',
+    useCaseTitle: 'Pipeline Failure Analysis',
+    moduleId: 'kg',
+    moduleTitle: 'Knowledge Graph',
+    moduleColor: '#0891B2',
+    copyCount: 0,
+    createdAt: '2026-09-29T10:00:00Z',
+    updatedAt: '2026-09-29T10:00:00Z',
+  },
+  {
+    id: 'kg-005',
+    title: 'Recommend fixes for my most-failing pipeline',
+    content: `Recommend fixes for my most-failing pipeline
+
+**Project:** {{project_name}}
+
+Use the Harness Knowledge Graph to answer this from pipeline, stage, and step execution data:
+1. Identify the pipeline with the most failures
+2. Cluster its failures by failure code and error pattern
+3. For each cluster, explain the likely root cause and a concrete fix
+
+Return recommendations ordered by impact (failures eliminated), each with the root cause, the fix, and the stage/step to change.`,
+    variables: [
+      { id: 'v1', name: 'project_name', label: 'Project', placeholder: 'e.g., payments (or "all projects")', type: 'text' },
+    ],
+    tags: ['knowledge-graph', 'remediation', 'pipeline-failures', 'recommendations'],
+    subUseCaseId: 'kg-failure-analysis',
+    subUseCaseTitle: 'Pipeline Failure Analysis',
+    useCaseId: 'kg-failures',
+    useCaseTitle: 'Pipeline Failure Analysis',
+    moduleId: 'kg',
+    moduleTitle: 'Knowledge Graph',
+    moduleColor: '#0891B2',
+    copyCount: 0,
+    createdAt: '2026-09-29T10:00:00Z',
+    updatedAt: '2026-09-29T10:00:00Z',
+  },
+  {
+    id: 'kg-006',
+    title: 'Which builds are taking the longest',
+    content: `Which builds are taking the longest?
+
+**Project:** {{project_name}}
+
+Use the Harness Knowledge Graph to answer this from pipeline, stage, and step execution data:
+1. Rank pipelines by average and p90 execution duration
+2. For the slowest pipelines, break down time by stage and step to find the bottlenecks
+3. Suggest optimizations for each bottleneck
+
+Return a table with Pipeline, Avg Duration, P90 Duration, Slowest Stage/Step, and Recommended Optimization.`,
+    variables: [
+      { id: 'v1', name: 'project_name', label: 'Project', placeholder: 'e.g., payments (or "all projects")', type: 'text' },
+    ],
+    tags: ['knowledge-graph', 'build-time', 'bottlenecks', 'duration'],
+    subUseCaseId: 'kg-build-duration',
+    subUseCaseTitle: 'Build Duration & Bottlenecks',
+    useCaseId: 'kg-build-time',
+    useCaseTitle: 'Build Time Analysis',
+    moduleId: 'kg',
+    moduleTitle: 'Knowledge Graph',
+    moduleColor: '#0891B2',
+    copyCount: 0,
+    createdAt: '2026-09-29T10:00:00Z',
+    updatedAt: '2026-09-29T10:00:00Z',
+  },
+  {
+    id: 'kg-007',
+    title: 'What are my slowest builds in the last 30 days',
+    content: `What are my slowest builds in the last 30 days?
+
+**Project:** {{project_name}}
+
+Use the Harness Knowledge Graph to answer this from pipeline, stage, and step execution data:
+1. Consider successful executions only so failures do not skew duration
+2. Rank builds by duration over the last 30 days
+
+Return a ranked list with Pipeline, Execution Count, Avg Duration, Max Duration, and a note on where the time goes.`,
+    variables: [
+      { id: 'v1', name: 'project_name', label: 'Project', placeholder: 'e.g., payments (or "all projects")', type: 'text' },
+    ],
+    tags: ['knowledge-graph', 'build-time', '30-days', 'slow-builds'],
+    subUseCaseId: 'kg-build-duration',
+    subUseCaseTitle: 'Build Duration & Bottlenecks',
+    useCaseId: 'kg-build-time',
+    useCaseTitle: 'Build Time Analysis',
+    moduleId: 'kg',
+    moduleTitle: 'Knowledge Graph',
+    moduleColor: '#0891B2',
+    copyCount: 0,
+    createdAt: '2026-09-29T10:00:00Z',
+    updatedAt: '2026-09-29T10:00:00Z',
+  },
+  {
+    id: 'kg-008',
+    title: 'Which build stage takes the longest in my pipeline',
+    content: `Which build stage takes the longest in my pipeline?
+
+**Project:** {{project_name}}
+**Pipeline:** {{pipeline_name}}
+
+Use the Harness Knowledge Graph to answer this from pipeline, stage, and step execution data:
+1. Break the pipeline's recent executions down by stage duration
+2. Identify the bottleneck stage and the slowest steps within it
+
+Return the stage breakdown sorted by average duration, with each stage's share of total pipeline time and a targeted optimization for the top stage.`,
+    variables: [
+      { id: 'v1', name: 'project_name', label: 'Project', placeholder: 'e.g., payments (or "all projects")', type: 'text' },
+      { id: 'v2', name: 'pipeline_name', label: 'Pipeline Name', placeholder: 'e.g., checkout-service-ci', type: 'text' },
+    ],
+    tags: ['knowledge-graph', 'stage-duration', 'bottlenecks', 'build-time'],
+    subUseCaseId: 'kg-build-duration',
+    subUseCaseTitle: 'Build Duration & Bottlenecks',
+    useCaseId: 'kg-build-time',
+    useCaseTitle: 'Build Time Analysis',
+    moduleId: 'kg',
+    moduleTitle: 'Knowledge Graph',
+    moduleColor: '#0891B2',
+    copyCount: 0,
+    createdAt: '2026-09-29T10:00:00Z',
+    updatedAt: '2026-09-29T10:00:00Z',
+  },
+  {
+    id: 'kg-009',
+    title: 'Why did my build time increase by 40% last week',
+    content: `Why did my build time increase by 40% last week?
+
+**Project:** {{project_name}}
+
+Use the Harness Knowledge Graph to answer this from pipeline, stage, and step execution data:
+1. Compare last week's execution durations with the prior week, stage by stage and step by step
+2. Identify which stages or steps account for the regression
+3. Correlate the change with pipeline configuration changes, new steps, cache behavior, or infrastructure changes in the same window
+
+Return the week-over-week comparison, the stages/steps responsible for the increase, the most likely root cause, and how to recover.`,
+    variables: [
+      { id: 'v1', name: 'project_name', label: 'Project', placeholder: 'e.g., payments (or "all projects")', type: 'text' },
+    ],
+    tags: ['knowledge-graph', 'build-regression', 'week-over-week', 'root-cause'],
+    subUseCaseId: 'kg-build-duration',
+    subUseCaseTitle: 'Build Duration & Bottlenecks',
+    useCaseId: 'kg-build-time',
+    useCaseTitle: 'Build Time Analysis',
+    moduleId: 'kg',
+    moduleTitle: 'Knowledge Graph',
+    moduleColor: '#0891B2',
+    copyCount: 0,
+    createdAt: '2026-09-29T10:00:00Z',
+    updatedAt: '2026-09-29T10:00:00Z',
+  },
+  {
+    id: 'kg-010',
+    title: 'Which test suites are the biggest bottleneck',
+    content: `Which test suites are the biggest bottleneck?
+
+**Project:** {{project_name}}
+
+Use the Harness Knowledge Graph to answer this from pipeline, stage, and step execution data:
+1. Rank test suites by total and average execution time across CI pipelines
+2. Highlight suites that are slow and run on every build
+
+Return a table with Test Suite, Pipelines, Avg Duration, Total Time, and a recommendation (split, parallelize, or use Test Intelligence).`,
+    variables: [
+      { id: 'v1', name: 'project_name', label: 'Project', placeholder: 'e.g., payments (or "all projects")', type: 'text' },
+    ],
+    tags: ['knowledge-graph', 'test-suites', 'bottlenecks', 'test-intelligence'],
+    subUseCaseId: 'kg-build-duration',
+    subUseCaseTitle: 'Build Duration & Bottlenecks',
+    useCaseId: 'kg-build-time',
+    useCaseTitle: 'Build Time Analysis',
+    moduleId: 'kg',
+    moduleTitle: 'Knowledge Graph',
+    moduleColor: '#0891B2',
+    copyCount: 0,
+    createdAt: '2026-09-29T10:00:00Z',
+    updatedAt: '2026-09-29T10:00:00Z',
+  },
+  {
+    id: 'kg-011',
+    title: 'Which builds have the most cache misses',
+    content: `Which builds have the most cache misses?
+
+**Project:** {{project_name}}
+
+Use the Harness Knowledge Graph to answer this from pipeline, stage, and step execution data:
+1. Identify pipelines with caching disabled or not configured
+2. For pipelines that do cache, identify those with the lowest cache hit rates
+
+Return a prioritized list with Pipeline, Caching Enabled (Y/N), Cache Hit Rate, and Estimated Time Saved if caching were fixed.`,
+    variables: [
+      { id: 'v1', name: 'project_name', label: 'Project', placeholder: 'e.g., payments (or "all projects")', type: 'text' },
+    ],
+    tags: ['knowledge-graph', 'cache', 'build-time', 'optimization'],
+    subUseCaseId: 'kg-build-duration',
+    subUseCaseTitle: 'Build Duration & Bottlenecks',
+    useCaseId: 'kg-build-time',
+    useCaseTitle: 'Build Time Analysis',
+    moduleId: 'kg',
+    moduleTitle: 'Knowledge Graph',
+    moduleColor: '#0891B2',
+    copyCount: 0,
+    createdAt: '2026-09-29T10:00:00Z',
+    updatedAt: '2026-09-29T10:00:00Z',
+  },
+  {
+    id: 'kg-012',
+    title: 'What are the top recommendations to improve pipeline productivity',
+    content: `What are the top recommendations to improve pipeline productivity?
+
+**Project:** {{project_name}}
+
+Use the Harness Knowledge Graph to answer this from pipeline, stage, and step execution data:
+1. Analyze execution patterns across caching, approval wait times, and failures
+2. Quantify the time lost in each category
+
+Return a ranked list of recommendations, each with the affected pipelines, estimated time saved per week, and implementation effort (Low / Medium / High).`,
+    variables: [
+      { id: 'v1', name: 'project_name', label: 'Project', placeholder: 'e.g., payments (or "all projects")', type: 'text' },
+    ],
+    tags: ['knowledge-graph', 'productivity', 'recommendations', 'approvals', 'cache'],
+    subUseCaseId: 'kg-productivity-recs',
+    subUseCaseTitle: 'Productivity & Cost Recommendations',
+    useCaseId: 'kg-productivity',
+    useCaseTitle: 'Pipeline Productivity',
+    moduleId: 'kg',
+    moduleTitle: 'Knowledge Graph',
+    moduleColor: '#0891B2',
+    copyCount: 0,
+    createdAt: '2026-09-29T10:00:00Z',
+    updatedAt: '2026-09-29T10:00:00Z',
+  },
+  {
+    id: 'kg-013',
+    title: 'Where am I wasting the most compute time on cache misses',
+    content: `Where am I wasting the most compute time on cache misses?
+
+**Project:** {{project_name}}
+
+Use the Harness Knowledge Graph to answer this from pipeline, stage, and step execution data:
+1. Quantify build minutes spent on steps that would be skipped or shortened by caching
+2. Estimate the cost of that wasted compute
+
+Return a table with Pipeline, Wasted Minutes per Week, Estimated Cost, and the caching change that would recover it.`,
+    variables: [
+      { id: 'v1', name: 'project_name', label: 'Project', placeholder: 'e.g., payments (or "all projects")', type: 'text' },
+    ],
+    tags: ['knowledge-graph', 'cache', 'compute-waste', 'ci-cost'],
+    subUseCaseId: 'kg-productivity-recs',
+    subUseCaseTitle: 'Productivity & Cost Recommendations',
+    useCaseId: 'kg-productivity',
+    useCaseTitle: 'Pipeline Productivity',
+    moduleId: 'kg',
+    moduleTitle: 'Knowledge Graph',
+    moduleColor: '#0891B2',
+    copyCount: 0,
+    createdAt: '2026-09-29T10:00:00Z',
+    updatedAt: '2026-09-29T10:00:00Z',
+  },
+  {
+    id: 'kg-014',
+    title: 'How can I reduce my CI costs without increasing build time',
+    content: `How can I reduce my CI costs without increasing build time?
+
+**Project:** {{project_name}}
+
+Use the Harness Knowledge Graph to answer this from pipeline, stage, and step execution data:
+1. Look for waste such as cache misses, redundant runs, retries, and oversized or idle build infrastructure
+2. Exclude any change that would make builds slower
+
+Return cost-saving opportunities with Estimated Savings, Impact on Build Time (must be neutral or faster), and Effort.`,
+    variables: [
+      { id: 'v1', name: 'project_name', label: 'Project', placeholder: 'e.g., payments (or "all projects")', type: 'text' },
+    ],
+    tags: ['knowledge-graph', 'ci-cost', 'cost-optimization', 'build-time'],
+    subUseCaseId: 'kg-productivity-recs',
+    subUseCaseTitle: 'Productivity & Cost Recommendations',
+    useCaseId: 'kg-productivity',
+    useCaseTitle: 'Pipeline Productivity',
+    moduleId: 'kg',
+    moduleTitle: 'Knowledge Graph',
+    moduleColor: '#0891B2',
+    copyCount: 0,
+    createdAt: '2026-09-29T10:00:00Z',
+    updatedAt: '2026-09-29T10:00:00Z',
+  },
+  {
+    id: 'kg-015',
+    title: 'Which tests are flaky in my CI pipelines',
+    content: `Which tests are flaky in my CI pipelines?
+
+**Project:** {{project_name}}
+
+Use the Harness Knowledge Graph to answer this from pipeline, stage, and step execution data:
+1. Identify tests that both pass and fail on the same code across executions
+2. Calculate the retry cost of each flaky test in build minutes
+
+Return a table with Test Name, Suite, Pipelines, Flake Rate, Retries, and Retry Cost (minutes).`,
+    variables: [
+      { id: 'v1', name: 'project_name', label: 'Project', placeholder: 'e.g., payments (or "all projects")', type: 'text' },
+    ],
+    tags: ['knowledge-graph', 'flaky-tests', 'retries', 'ci'],
+    subUseCaseId: 'kg-flaky-tests',
+    subUseCaseTitle: 'Flaky Test Detection',
+    useCaseId: 'kg-flaky',
+    useCaseTitle: 'Flaky Test Identification',
+    moduleId: 'kg',
+    moduleTitle: 'Knowledge Graph',
+    moduleColor: '#0891B2',
+    copyCount: 0,
+    createdAt: '2026-09-29T10:00:00Z',
+    updatedAt: '2026-09-29T10:00:00Z',
+  },
+  {
+    id: 'kg-016',
+    title: 'Which tests fail intermittently across my pipelines',
+    content: `Which tests fail intermittently across my pipelines?
+
+**Project:** {{project_name}}
+
+Use the Harness Knowledge Graph to answer this from pipeline, stage, and step execution data:
+1. Compare pass/fail results for the same tests across pipeline executions
+2. Flag tests with inconsistent outcomes and the pipelines where they appear
+
+Return the intermittent tests ranked by inconsistency, with the pipelines affected and the pass/fail ratio.`,
+    variables: [
+      { id: 'v1', name: 'project_name', label: 'Project', placeholder: 'e.g., payments (or "all projects")', type: 'text' },
+    ],
+    tags: ['knowledge-graph', 'flaky-tests', 'intermittent-failures', 'cross-pipeline'],
+    subUseCaseId: 'kg-flaky-tests',
+    subUseCaseTitle: 'Flaky Test Detection',
+    useCaseId: 'kg-flaky',
+    useCaseTitle: 'Flaky Test Identification',
+    moduleId: 'kg',
+    moduleTitle: 'Knowledge Graph',
+    moduleColor: '#0891B2',
+    copyCount: 0,
+    createdAt: '2026-09-29T10:00:00Z',
+    updatedAt: '2026-09-29T10:00:00Z',
+  },
+  {
+    id: 'kg-017',
+    title: 'How many build minutes are wasted on retries per week',
+    content: `How many build minutes are wasted on retries per week?
+
+**Project:** {{project_name}}
+
+Use the Harness Knowledge Graph to answer this from pipeline, stage, and step execution data:
+1. Total the build minutes spent re-running steps and tests across all pipelines
+2. Break the total down by pipeline and by the tests that trigger the most retries
+
+Return the weekly total, a per-pipeline breakdown, and the top tests driving retry minutes.`,
+    variables: [
+      { id: 'v1', name: 'project_name', label: 'Project', placeholder: 'e.g., payments (or "all projects")', type: 'text' },
+    ],
+    tags: ['knowledge-graph', 'retries', 'build-minutes', 'flaky-tests', 'ci-cost'],
+    subUseCaseId: 'kg-flaky-tests',
+    subUseCaseTitle: 'Flaky Test Detection',
+    useCaseId: 'kg-flaky',
+    useCaseTitle: 'Flaky Test Identification',
+    moduleId: 'kg',
+    moduleTitle: 'Knowledge Graph',
+    moduleColor: '#0891B2',
+    copyCount: 0,
+    createdAt: '2026-09-29T10:00:00Z',
+    updatedAt: '2026-09-29T10:00:00Z',
+  },
+  {
+    id: 'kg-018',
+    title: 'Which flaky tests are getting worse over time',
+    content: `Which flaky tests are getting worse over time?
+
+**Project:** {{project_name}}
+
+Use the Harness Knowledge Graph to answer this from pipeline, stage, and step execution data:
+1. Track each flaky test's failure rate over an extended period
+2. Identify tests whose flake rate is increasing
+
+Return the degrading tests with Test Name, Flake Rate Then vs. Now, Trend, and Suggested Owner or Next Step.`,
+    variables: [
+      { id: 'v1', name: 'project_name', label: 'Project', placeholder: 'e.g., payments (or "all projects")', type: 'text' },
+    ],
+    tags: ['knowledge-graph', 'flaky-tests', 'trends', 'test-quality'],
+    subUseCaseId: 'kg-flaky-tests',
+    subUseCaseTitle: 'Flaky Test Detection',
+    useCaseId: 'kg-flaky',
+    useCaseTitle: 'Flaky Test Identification',
+    moduleId: 'kg',
+    moduleTitle: 'Knowledge Graph',
+    moduleColor: '#0891B2',
+    copyCount: 0,
+    createdAt: '2026-09-29T10:00:00Z',
+    updatedAt: '2026-09-29T10:00:00Z',
+  },
+  {
+    id: 'kg-019',
+    title: 'What\'s causing my integration tests to be flaky',
+    content: `What's causing my integration tests to be flaky?
+
+**Project:** {{project_name}}
+
+Use the Harness Knowledge Graph to answer this from pipeline, stage, and step execution data:
+1. Analyze failure patterns of flaky integration tests
+2. Classify each by likely root cause: timing/race conditions, resource contention, external dependencies, or test isolation issues
+
+Return each flaky integration test with its likely root cause, the supporting evidence, and a concrete fix.`,
+    variables: [
+      { id: 'v1', name: 'project_name', label: 'Project', placeholder: 'e.g., payments (or "all projects")', type: 'text' },
+    ],
+    tags: ['knowledge-graph', 'flaky-tests', 'integration-tests', 'root-cause'],
+    subUseCaseId: 'kg-flaky-tests',
+    subUseCaseTitle: 'Flaky Test Detection',
+    useCaseId: 'kg-flaky',
+    useCaseTitle: 'Flaky Test Identification',
+    moduleId: 'kg',
+    moduleTitle: 'Knowledge Graph',
+    moduleColor: '#0891B2',
+    copyCount: 0,
+    createdAt: '2026-09-29T10:00:00Z',
+    updatedAt: '2026-09-29T10:00:00Z',
   },
 ]
 
